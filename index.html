@@ -1,1287 +1,617 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full antialiased dark">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Matrix — Geist</title>
-    
-    <!-- Vercel Geist Font (Geist Sans & Geist Mono) via CDN -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-mono/style.css">
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Geist Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
-                        mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
-                    },
-                    colors: {
-                        geist: {
-                            bg: '#000000',
-                            foreground: '#ededed',
-                            accents1: '#111111',
-                            accents2: '#222222',
-                            accents3: '#333333',
-                            accents4: '#444444',
-                            accents5: '#666666',
-                            accents6: '#888888',
-                            accents7: '#eaeaea',
-                            accents8: '#fafafa',
-                            success: '#0070f3',
-                            cyan: '#50e3c2',
-                            highlight: '#ff0080',
-                            warning: '#f5a623',
-                            error: '#ee0000'
-                        }
-                    },
-                    letterSpacing: {
-                        tighter: '-0.04em',
-                        tight: '-0.02em',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Custom Scrollbars */
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
-            border-radius: 9999px;
-        }
-        .dark ::-webkit-scrollbar-thumb {
-            background: #222222;
-            border-radius: 0px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #cbd5e1;
-        }
-        .dark ::-webkit-scrollbar-thumb:hover {
-            background: #333333;
-        }
+    <title>Task Matrix — Modern Family & Personal Productivity</title>
+    <meta name="description"
+        content="An elegant, modern task management matrix and family planner featuring a calendar, smart reminders, and lively productivity tracking.">
 
-        /* Checkbox */
-        .geist-checkbox {
-            appearance: none;
-            background-color: #ffffff;
-            border: 1px solid #d4d4d8;
-            border-radius: 3px;
-            display: inline-grid;
-            place-content: center;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        .dark .geist-checkbox {
-            background-color: #000000;
-            border: 1px solid #333333;
-            border-radius: 3px;
-        }
-        .geist-checkbox:hover {
-            border-color: #0070f3;
-            background-color: #fcfcfd;
-        }
-        .dark .geist-checkbox:hover {
-            border-color: #666666;
-            background-color: #111111;
-        }
-        .geist-checkbox:focus-visible {
-            outline: 2px solid #0070f3;
-            outline-offset: 1px;
-        }
-        .dark .geist-checkbox:focus-visible {
-            outline: 2px solid #ffffff;
-            outline-offset: 1px;
-        }
-        .task-item.completed .geist-checkbox {
-            background-color: #0070f3;
-            border-color: #0070f3;
-        }
-        .dark .task-item.completed .geist-checkbox {
-            background-color: #ffffff;
-            border-color: #ffffff;
-        }
-        .task-item.completed .task-title {
-            text-decoration: line-through;
-            color: #a1a1aa;
-        }
-        .dark .task-item.completed .task-title {
-            color: #666666;
-        }
+    <!-- Google Fonts: Outfit, Plus Jakarta Sans, & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 
-        /* Status Styling on Task Rows */
-        .task-item.is-overdue {
-            border-left: 2px solid #ee0000 !important;
-            background-color: rgba(238, 0, 0, 0.02);
-        }
-        .dark .task-item.is-overdue {
-            border-left: 2px solid #ee0000 !important;
-            background-color: rgba(238, 0, 0, 0.05);
-        }
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
 
-        .task-item.is-due-today {
-            border-left: 2px solid #f5a623 !important;
-            background-color: rgba(245, 166, 35, 0.02);
-        }
-        .dark .task-item.is-due-today {
-            border-left: 2px solid #f5a623 !important;
-            background-color: transparent;
-        }
+    <!-- Google Identity Services for Direct Real-Time OAuth & Sync -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-        /* Subtle, Clean Light/Dark Background */
-        .geist-grid-bg {
-            background-color: #fafbfc;
-            background-image: 
-                radial-gradient(at 10% 10%, rgba(0, 112, 243, 0.04) 0px, transparent 40%),
-                radial-gradient(at 90% 10%, rgba(235, 54, 127, 0.03) 0px, transparent 40%),
-                linear-gradient(to right, rgba(228, 231, 235, 0.6) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(228, 231, 235, 0.6) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
-        }
-        .dark .geist-grid-bg {
-            background-color: #000000;
-            background-image: linear-gradient(to right, rgba(34, 34, 34, 0.5) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(34, 34, 34, 0.5) 1px, transparent 1px);
-            background-size: 24px 24px;
-        }
-
-        /* Assignee Dot Colors */
-        .cal-person-dot[data-person="Dad"] { background-color: #0070f3; }
-        .cal-person-dot[data-person="Mom"] { background-color: #eb367f; }
-
-        /* Soft graphite theme: easier on the eyes than pure white or black. */
-        body.soft-gray-theme {
-            background-color: #e5e7eb;
-            color: #1f2937;
-            background-image:
-                radial-gradient(at 10% 0%, rgba(255, 255, 255, 0.7) 0, transparent 42%),
-                radial-gradient(at 90% 100%, rgba(148, 163, 184, 0.22) 0, transparent 44%),
-                linear-gradient(to right, rgba(148, 163, 184, 0.12) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
-        }
-
-        body.soft-gray-theme header,
-        body.soft-gray-theme [class*="bg-white"] {
-            background-color: #f3f4f6 !important;
-        }
-
-        body.soft-gray-theme [class*="bg-[#fafafa]"],
-        body.soft-gray-theme [class*="bg-[#0a0a0a]"],
-        body.soft-gray-theme [class*="bg-[#111111]"] {
-            background-color: #e9edf1 !important;
-        }
-
-        body.soft-gray-theme [class*="border-[#eaeaea]"],
-        body.soft-gray-theme [class*="border-[#222222]"],
-        body.soft-gray-theme [class*="border-[#333333]"] {
-            border-color: #cbd5e1 !important;
-        }
-
-        body.soft-gray-theme [class*="divide-[#eaeaea]"],
-        body.soft-gray-theme [class*="divide-[#222222]"] {
-            border-color: #d1d5db !important;
-        }
-
-        body.soft-gray-theme [class*="text-black"],
-        body.soft-gray-theme [class*="text-white"] {
-            color: #1f2937 !important;
-        }
-
-        body.soft-gray-theme [class*="text-[#666666]"],
-        body.soft-gray-theme [class*="text-[#888888]"] {
-            color: #4b5563 !important;
-        }
-
-        body.soft-gray-theme input,
-        body.soft-gray-theme select {
-            color: #1f2937 !important;
-            background-color: #f8fafc !important;
-        }
-
-        body.soft-gray-theme input::placeholder {
-            color: #64748b !important;
-        }
-
-        body.soft-gray-theme [class*="hover:bg-[#fafafa]"]:hover,
-        body.soft-gray-theme [class*="hover:bg-[#111111]"]:hover {
-            background-color: #e2e8f0 !important;
-        }
-
-        body.soft-gray-theme .task-item.completed .task-title {
-            color: #64748b !important;
-        }
-
-        body.soft-gray-theme .geist-checkbox {
-            background-color: #f8fafc;
-            border-color: #94a3b8;
-        }
-    </style>
+    <!-- Application Logic -->
+    <script src="app.js" defer></script>
 </head>
-<body class="soft-gray-theme min-h-full font-sans text-neutral-900 dark:text-[#ededed] selection:bg-[#0070f3] selection:text-white pb-12 transition-colors duration-150 geist-grid-bg">
 
-    <!-- Top Compact Header (Sticky) -->
-    <header class="border-b border-[#eaeaea] dark:border-[#222222] bg-white/80 dark:bg-black/85 backdrop-blur-md sticky top-0 z-40 transition-colors duration-150">
-        <div class="max-w-5xl mx-auto px-4 sm:px-5 h-11 flex items-center justify-between">
-            <!-- Brand Indicator & Compact Date -->
-            <div class="flex items-center gap-2.5">
-                <div class="w-5 h-5 flex items-center justify-center text-black dark:text-white">
-                    <svg class="w-4 h-4 fill-current" viewBox="0 0 76 65" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
+<body>
+
+    <!-- Confetti Canvas for Celebratory Completions -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Dynamic Ambient Lighting & Grid Mesh Vibe -->
+    <div class="ambient-glow-wrapper" aria-hidden="true">
+        <div class="ambient-orb ambient-orb-1"></div>
+        <div class="ambient-orb ambient-orb-2"></div>
+        <div class="ambient-orb ambient-orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+    <!-- Tactile Paper Grain Layer (Light Mode) -->
+    <div class="paper-grain-layer" aria-hidden="true"></div>
+
+    <!-- Top Navigation Header -->
+    <header class="app-topbar">
+        <div class="topbar-container">
+            <!-- Brand Logo & Identity -->
+            <div class="brand-wrapper">
+                <div class="brand-logo" title="Task Matrix">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
                     </svg>
                 </div>
-                <div class="h-3.5 w-px bg-[#eaeaea] dark:bg-[#333333]"></div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-semibold tracking-tight text-neutral-900 dark:text-[#ededed]">Task Matrix</span>
-                    <span class="font-mono text-[9px] px-1 py-0.2 rounded border border-[#eaeaea] dark:border-[#333333] bg-[#fafafa] dark:bg-[#111111] text-[#666666] dark:text-[#888888]">v8.0</span>
-                    <span id="header-date-badge" class="font-mono text-[11px] text-[#888888] dark:text-[#666666] hidden sm:inline ml-1 font-medium">Today</span>
+                <div class="brand-info">
+                    <div class="brand-name-row">
+                        <span class="brand-name">Task Matrix</span>
+                    </div>
+                    <span class="brand-tagline">Shared Family Planner & Focus Workspace</span>
                 </div>
             </div>
 
             <!-- Top Action Controls -->
-            <div class="flex items-center gap-1.5">
-                <!-- Theme Mode Toggle Button -->
-                <button 
-                    id="theme-toggle-btn" 
-                    type="button" 
-                    class="h-7 px-2 rounded text-xs font-medium border border-[#eaeaea] dark:border-[#333333] bg-white dark:bg-[#111111] text-[#666666] dark:text-[#888888] hover:text-black dark:hover:text-white hover:border-[#888888] dark:hover:border-[#666666] transition-all flex items-center gap-1 focus:outline-none"
-                    title="Toggle light / dark mode"
-                    aria-label="Toggle theme"
-                >
-                    <span id="theme-btn-icon" class="text-[11px]">🌙</span>
-                    <span id="theme-btn-text" class="font-mono text-[10px] hidden sm:inline">Dark</span>
+            <div class="topbar-actions">
+                <div id="header-date-badge" class="header-date-badge">Today</div>
+
+                <!-- Real-Time Google Calendar Direct Sync Button -->
+                <button id="header-gcal-sync-btn" class="header-btn gcal-sync-topbtn" type="button" title="Push all active tasks directly to Google Calendar" aria-label="Sync with Google Calendar">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="sync-icon">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                    </svg>
+                    <span id="header-gcal-sync-text">Sync GCal</span>
+                </button>
+
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle-btn" class="header-btn" type="button" title="Toggle Dark / Light Theme"
+                    aria-label="Toggle Theme">
+                    <span id="theme-btn-icon">🌙</span>
+                    <span id="theme-btn-text">Dark</span>
                 </button>
 
                 <!-- Notifications Toggle Button -->
-                <button 
-                    id="enable-notifications-btn" 
-                    type="button" 
-                    class="h-7 px-2 rounded text-xs font-medium border border-[#eaeaea] dark:border-[#333333] bg-white dark:bg-[#111111] text-[#666666] dark:text-[#888888] hover:text-black dark:hover:text-white hover:border-[#888888] dark:hover:border-[#666666] transition-all flex items-center gap-1 focus:outline-none"
-                >
-                    <span id="notif-btn-icon" class="text-[11px]">🔔</span>
-                    <span id="notif-btn-text" class="font-mono text-[10px] hidden sm:inline">Alerts On</span>
+                <button id="enable-notifications-btn" class="header-btn" type="button"
+                    title="Toggle Scheduled Reminders" aria-label="Toggle Reminders">
+                    <span id="notif-btn-icon">🔔</span>
+                    <span id="notif-btn-text">Alerts On</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Workspace Content (Dense & Shifted Up) -->
-    <main class="max-w-5xl mx-auto px-4 sm:px-5 pt-4">
-        <!-- Layout Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-            
-            <!-- Left Column: New Task Form & Task List (7 cols) -->
-            <div class="lg:col-span-7 space-y-4">
-                
-                <!-- Dense Form Card -->
-                <div class="bg-white dark:bg-[#000000] border border-[#eaeaea] dark:border-[#222222] rounded-md p-3.5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] dark:shadow-[0_0_0_1px_rgba(0,0,0,0.02)] transition-colors duration-150">
-                    <form id="task-form" class="space-y-2.5">
-                        <div class="flex items-center gap-2">
-                            <input 
-                                type="text" 
-                                id="task-title-input" 
-                                class="w-full bg-[#fafafa] dark:bg-[#111111] border border-[#eaeaea] dark:border-[#333333] rounded px-2.5 py-1.5 text-xs text-black dark:text-white placeholder-[#888888] dark:placeholder-[#666666] focus:outline-none focus:border-[#0070f3] dark:focus:border-white transition font-sans"
-                                placeholder="What needs to be scheduled?" 
-                                autocomplete="off"
-                                required
-                            />
-                            <button 
-                                type="submit" 
-                                id="btn-submit-task" 
-                                class="h-7 px-3 rounded bg-black dark:bg-white hover:bg-[#222222] dark:hover:bg-[#eaeaea] text-white dark:text-black text-xs font-medium transition-colors focus:outline-none flex items-center gap-1 whitespace-nowrap shadow-sm"
-                            >
-                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main Application Workspace -->
+    <main class="app-main">
+
+        <!-- Compact Animated Productivity Strip -->
+        <section class="compact-status-bar" aria-label="Productivity Status">
+            <div class="status-indicator-badge">
+                <span class="pulsing-radar-dot" aria-hidden="true"></span>
+                <span class="status-live-text"> FOCUS FLOW</span>
+                <span class="status-separator" aria-hidden="true">•</span>
+                <span class="status-animated-quote">Every task done clears your space</span>
+            </div>
+
+            <!-- Compact Animated Progress Track -->
+            <div class="compact-progress-group">
+                <span id="intro-progress-pct" class="compact-progress-pct">0% completed</span>
+                <div class="compact-progress-track" aria-hidden="true">
+                    <div id="intro-progress-fill" class="compact-progress-fill">
+                        <span class="progress-shimmer"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2-Column Responsive Layout Grid -->
+        <div class="workspace-grid">
+
+            <!-- Left Column: New Task Form & Active Task List -->
+            <div class="workspace-col">
+
+                <!-- Task Creation Glass Card -->
+                <section class="glass-card" aria-labelledby="form-card-title">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-title-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="12" y1="5" x2="12" y2="19"></line>
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                 </svg>
-                                <span>Add</span>
-                            </button>
+                            </div>
+                            <h2 id="form-card-title" class="card-title">Add New Item</h2>
+                        </div>
+                        <span class="card-tag">Fast Entry</span>
+                    </div>
+
+                    <div class="card-body">
+                        <form id="task-form" class="task-form">
+                            <!-- Primary Title Input & Submit Button -->
+                            <div class="input-primary-row">
+                                <div class="input-primary-wrapper">
+                                    <span class="input-icon-left" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                    </span>
+                                    <input type="text" id="task-title-input" class="text-input"
+                                        placeholder="What needs to be accomplished or scheduled?" autocomplete="off"
+                                        required />
+                                </div>
+                                <button type="submit" id="btn-submit-task" class="btn-primary" aria-label="Add Task">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    <span>Add Task</span>
+                                </button>
+                            </div>
+
+                            <!-- Meta Fields Grid: Date, Time, Duration, Reminder, Assignee -->
+                            <div class="form-meta-grid">
+                                <div class="meta-field">
+                                    <label for="task-date-input" class="meta-label">Date</label>
+                                    <input type="date" id="task-date-input" class="meta-input" min="1970-01-01" max="2100-12-31" required />
+                                </div>
+
+                                <div class="meta-field">
+                                    <label for="task-starttime-select" class="meta-label">Start Time</label>
+                                    <select id="task-starttime-select" class="meta-select">
+                                        <!-- Dynamically populated in app.js -->
+                                    </select>
+                                </div>
+
+                                <div class="meta-field">
+                                    <label for="task-duration-select" class="meta-label">Duration</label>
+                                    <select id="task-duration-select" class="meta-select">
+                                        <option value="15 min">15m</option>
+                                        <option value="30 min" selected>30m</option>
+                                        <option value="45 min">45m</option>
+                                        <option value="1 hr">1h</option>
+                                        <option value="2 hrs">2h</option>
+                                        <option value="4 hrs">4h</option>
+                                        <option value="Full day">Full day</option>
+                                    </select>
+                                </div>
+
+                                <div class="meta-field">
+                                    <label for="task-reminder-hour" class="meta-label">Reminder</label>
+                                    <div class="time-select-group">
+                                        <select id="task-reminder-hour" class="meta-select time-sub-select" aria-label="Reminder Hour">
+                                            <!-- Populated dynamically in app.js: starts with 00 down to 23 -->
+                                        </select>
+                                        <span class="time-separator" aria-hidden="true">:</span>
+                                        <select id="task-reminder-min" class="meta-select time-sub-select" aria-label="Reminder Minute">
+                                            <!-- Populated dynamically in app.js: starts with 00 down to 59, never rolls back -->
+                                        </select>
+                                    </div>
+                                    <input type="hidden" id="task-reminder-input" />
+                                </div>
+
+                                <div class="meta-field">
+                                    <label for="task-person-select" class="meta-label">Assignee</label>
+                                    <select id="task-person-select" class="meta-select">
+                                        <option value="Dad">Dad</option>
+                                        <option value="Mom">Mom</option>
+                                        <option value="Alex">Alex</option>
+                                        <option value="Chicky">Chicky</option>
+                                        <option value="Kimi">Kimi</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-options-row">
+                                <label class="form-toggle-label" for="task-open-gcal-checkbox" title="Automatically open event in Google Calendar after adding">
+                                    <input type="checkbox" id="task-open-gcal-checkbox" />
+                                    <span>Also open in Google Calendar on add</span>
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Tasks Listing Glass Card -->
+                <section class="glass-card" aria-labelledby="tasks-card-title">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-title-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 11l3 3L22 4"></path>
+                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                                </svg>
+                            </div>
+                            <h2 id="tasks-card-title" class="card-title">Active Items</h2>
+                        </div>
+                        <span id="task-count-text" class="card-tag task-count-tag">0 tasks remaining</span>
+                    </div>
+
+                    <!-- Task Controls: Integrated Search Bar + Filter Tabs -->
+                    <div class="task-controls-bar">
+                        <div class="task-search-bar">
+                            <div class="search-input-wrapper">
+                                <span class="search-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                </span>
+                                <input type="search" id="task-search-input" class="search-input"
+                                    placeholder="Search active, completed &amp; archived tasks…" autocomplete="off"
+                                    aria-label="Search tasks" />
+                                <button id="btn-clear-search" class="btn-clear-search" type="button"
+                                    aria-label="Clear search" title="Clear search" style="display:none;">✕</button>
+                            </div>
                         </div>
 
-                        <!-- Form Meta Fields Grid (Dense) -->
-                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
-                            <div>
-                                <label for="task-date-input" class="block font-mono text-[10px] text-[#666666] dark:text-[#888888] mb-0.5">Date</label>
-                                <input 
-                                    type="date" 
-                                    id="task-date-input" 
-                                    class="w-full bg-[#fafafa] dark:bg-[#111111] border border-[#eaeaea] dark:border-[#333333] rounded px-1.5 py-1 text-[11px] text-black dark:text-white focus:outline-none focus:border-[#0070f3] dark:focus:border-white transition font-mono"
-                                    required 
-                                />
+                        <div class="task-filter-row">
+                            <div class="filter-pills" role="tablist" aria-label="Task Filters">
+                                <button class="filter-btn active" data-filter="all" type="button"
+                                    role="tab">All</button>
+                                <button class="filter-btn" data-filter="active" type="button" role="tab">Active</button>
+                                <button class="filter-btn" data-filter="completed" type="button"
+                                    role="tab">Completed</button>
+                                <button class="filter-btn archived-pill" data-filter="archived" type="button"
+                                    role="tab">Archived</button>
                             </div>
 
-                            <div>
-                                <label for="task-starttime-select" class="block font-mono text-[10px] text-[#666666] dark:text-[#888888] mb-0.5">Time</label>
-                                <select 
-                                    id="task-starttime-select" 
-                                    class="w-full bg-[#fafafa] dark:bg-[#111111] border border-[#eaeaea] dark:border-[#333333] rounded px-1.5 py-1 text-[11px] text-black dark:text-white focus:outline-none focus:border-[#0070f3] dark:focus:border-white transition font-mono"
-                                >
-                                    <!-- Populated dynamically -->
-                                </select>
+                            <!-- Active Selected Date Chip (shown when date is filtered) -->
+                            <div id="active-date-chip" class="active-date-chip" style="display: none;">
+                                <span>Filter: <strong id="active-date-label">Today</strong></span>
+                                <button id="btn-clear-date-filter" type="button" title="Show all dates"
+                                    aria-label="Clear date filter">✕</button>
                             </div>
-
-                            <div>
-                                <label for="task-duration-select" class="block font-mono text-[10px] text-[#666666] dark:text-[#888888] mb-0.5">Duration</label>
-                                <select 
-                                    id="task-duration-select" 
-                                    class="w-full bg-[#fafafa] dark:bg-[#111111] border border-[#eaeaea] dark:border-[#333333] rounded px-1.5 py-1 text-[11px] text-black dark:text-white focus:outline-none focus:border-[#0070f3] dark:focus:border-white transition font-mono"
-                                >
-                                    <option value="15 min">15m</option>
-                                    <option value="30 min" selected>30m</option>
-                                    <option value="45 min">45m</option>
-                                    <option value="1 hr">1h</option>
-                                    <option value="2 hrs">2h</option>
-                                    <option value="4 hrs">4h</option>
-                                    <option value="Full day">Day</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label for="task-reminder-input" class="block font-mono text-[10px] text-[#666666] dark:text-[#888888] mb-0.5">Reminder</label>
-                                <input 
-                                    type="time" 
-                                    id="task-reminder-input" 
-                                    class="w-full bg-[#fafafa] dark:bg-[#111111] border border-[#eaeaea] dark:border-[#333333] rounded px-1.5 py-1 text-[11px] text-black dark:text-white focus:outline-none focus:border-[#0070f3] dark:focus:border-white transition font-mono"
-                                />
-                            </div>
-
-                            <div>
-                                <label for="task-person-select" class="block font-mono text-[10px] text-[#666666] dark:text-[#888888] mb-0.5">Assignee</label>
-                                <select 
-                                    id="task-person-select" 
-                                    class="w-full bg-[#fafafa] dark:bg-[#111111] border border-[#eaeaea] dark:border-[#333333] rounded px-1.5 py-1 text-[11px] text-black dark:text-white focus:outline-none focus:border-[#0070f3] dark:focus:border-white transition font-mono"
-                                >
-                                    <option value="Dad">Dad</option>
-                                    <option value="Mom">Mom</option>
-                                </select>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Tasks Listing Card (Dense) -->
-                <div class="bg-white dark:bg-[#000000] border border-[#eaeaea] dark:border-[#222222] rounded-md overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.03)] dark:shadow-none transition-colors duration-150">
-                    
-                    <!-- Segmented Filters & Active Scope -->
-                    <div class="px-3 py-2 border-b border-[#eaeaea] dark:border-[#222222] flex flex-wrap items-center justify-between gap-2 bg-[#fafafa] dark:bg-[#0a0a0a]">
-                        <!-- Tab Pills -->
-                        <div class="inline-flex rounded bg-[#eaeaea] dark:bg-[#111111] p-0.5 border border-[#eaeaea] dark:border-[#222222] text-xs font-mono">
-                            <button class="filter-pill-btn px-2 py-0.5 rounded text-[11px] font-medium text-black dark:text-white bg-white dark:bg-[#222222] shadow-sm transition" data-filter="all">all</button>
-                            <button class="filter-pill-btn px-2 py-0.5 rounded text-[11px] font-medium text-[#666666] dark:text-[#888888] hover:text-black dark:hover:text-white transition" data-filter="active">active</button>
-                            <button class="filter-pill-btn px-2 py-0.5 rounded text-[11px] font-medium text-[#666666] dark:text-[#888888] hover:text-black dark:hover:text-white transition" data-filter="completed">completed</button>
-                        </div>
-
-                        <!-- Active Date Filter Indicator Tag -->
-                        <div id="active-date-container" class="items-center gap-1 px-1.5 py-0.2 rounded border border-[#0070f3]/25 dark:border-[#333333] bg-[#0070f3]/5 dark:bg-[#111111] font-mono text-[10px] text-[#0070f3] dark:text-[#ededed]" style="display: none;">
-                            <span class="text-[#0070f3]/70 dark:text-[#888888]">date:</span>
-                            <span><strong id="active-date-label">Today</strong></span>
-                            <button id="btn-clear-date-filter" class="ml-0.5 text-[#0070f3] hover:text-black dark:text-[#888888] dark:hover:text-white transition" title="Show all dates">
-                                ✕
-                            </button>
-                        </div>
-
-                        <div id="task-count-text" class="font-mono text-[10px] text-[#888888] dark:text-[#666666] ml-auto font-medium">
-                            0 items
                         </div>
                     </div>
 
                     <!-- Dynamic Task List -->
-                    <ul id="task-list" class="divide-y divide-[#eaeaea] dark:divide-[#222222]">
-                        <!-- Rendered dynamically -->
+                    <ul id="task-list" class="task-items-list" aria-live="polite">
+                        <!-- Rendered dynamically by app.js -->
                     </ul>
 
-                    <!-- Empty State -->
-                    <div id="tasks-empty-state" class="py-8 px-4 text-center hidden">
-                        <div class="w-6 h-6 mx-auto mb-1.5 rounded border border-[#eaeaea] dark:border-[#333333] bg-[#fafafa] dark:bg-[#111111] flex items-center justify-center text-[#888888]">
-                            <span class="font-mono text-[10px]">0</span>
-                        </div>
-                        <p class="text-xs text-[#888888] dark:text-[#666666]">No records found for current filters.</p>
+                    <!-- Empty State View -->
+                    <div id="tasks-empty-state" class="empty-state-box hidden">
+                        <div class="empty-state-icon" aria-hidden="true">✨</div>
+                        <h3 class="empty-state-title">All clear &amp; up to date!</h3>
+                        <p class="empty-state-desc">No tasks match your current filter. Enjoy your day or add a new
+                            schedule item above.</p>
                     </div>
 
-                    <!-- Card Bottom Footer -->
-                    <div class="px-3 py-1.5 bg-[#fafafa] dark:bg-[#0a0a0a] border-t border-[#eaeaea] dark:border-[#222222] flex items-center justify-between text-[11px] text-[#888888] dark:text-[#666666] font-mono">
-                        <button id="btn-clear-completed" class="hover:text-[#ee0000] transition-colors focus:outline-none">Clear completed</button>
-                        <span class="flex items-center gap-1.5 text-[10px]">
-                            <span class="w-1.5 h-1.5 rounded-full bg-[#0070f3]"></span>
-                            <span>synced local</span>
-                        </span>
+                    <!-- Card Footer Bar -->
+                    <div class="card-footer-bar">
+                        <div class="footer-actions-group">
+                            <button id="btn-archive-completed" class="btn-link-action archive" type="button">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                                    <rect x="1" y="3" width="22" height="5"></rect>
+                                    <line x1="10" y1="12" x2="14" y2="12"></line>
+                                </svg>
+                                <span>Archive Completed Tasks</span>
+                            </button>
+                            <button id="btn-footer-direct-sync" class="btn-link-action gcal-direct" type="button" title="Push all active tasks directly to Google Calendar">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="sync-icon">
+                                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                                </svg>
+                                <span id="footer-direct-sync-text">Push to Google Calendar</span>
+                            </button>
+                            <button id="btn-footer-gcal" class="btn-link-action gcal" type="button" title="Sync or export tasks to Google Calendar">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    <path d="M12 14v4M10 16h4"></path>
+                                </svg>
+                                <span>GCal Settings / Export</span>
+                            </button>
+                        </div>
+                        <div class="sync-status">
+                            <span class="sync-dot" id="gcal-live-sync-dot" aria-hidden="true"></span>
+                            <span id="gcal-live-sync-status">Local Storage Synced</span>
+                        </div>
                     </div>
-                </div>
+                </section>
+
             </div>
 
-            <!-- Right Column: Interactive Calendar & Analytics (5 cols) -->
-            <div class="lg:col-span-5 space-y-4">
-                
-                <!-- Dense Calendar Card -->
-                <div class="bg-white dark:bg-[#000000] border border-[#eaeaea] dark:border-[#222222] rounded-md p-3.5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] dark:shadow-[0_0_0_1px_rgba(0,0,0,0.02)] transition-colors duration-150">
-                    <!-- Calendar Header -->
-                    <div class="flex items-center justify-between mb-2.5">
-                        <h2 id="cal-month-year" class="text-xs font-semibold uppercase tracking-wider text-black dark:text-white font-mono">August 2026</h2>
-                        <div class="flex items-center gap-1 font-mono text-xs">
-                            <button id="cal-prev-btn" class="h-6 w-6 rounded border border-[#eaeaea] dark:border-[#333333] text-[#666666] dark:text-[#888888] hover:text-black dark:hover:text-white hover:bg-[#fafafa] dark:hover:bg-[#111111] flex items-center justify-center transition" title="Previous Month">
-                                ‹
+            <!-- Right Column:  Calendar & Analytics Summary -->
+            <div class="workspace-col">
+
+                <!-- Calendar Glass Card -->
+                <section class="glass-card calendar-card" aria-labelledby="cal-card-title">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-title-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                            </div>
+                            <h2 id="cal-card-title" class="card-title">Calendar</h2>
+                        </div>
+                        <div class="card-header-actions">
+                            <button id="btn-open-gcal-modal" class="btn-gcal-badge" type="button" title="Sync & Export to Google Calendar">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    <path d="M12 14v4M10 16h4"></path>
+                                </svg>
+                                <span>Google Cal</span>
                             </button>
-                            <button id="cal-today-btn" class="h-6 px-1.5 rounded border border-[#eaeaea] dark:border-[#333333] text-[#666666] dark:text-[#888888] hover:text-black dark:hover:text-white hover:bg-[#fafafa] text-[10px] transition">today</button>
-                            <button id="cal-next-btn" class="h-6 w-6 rounded border border-[#eaeaea] dark:border-[#333333] text-[#666666] dark:text-[#888888] hover:text-black dark:hover:text-white hover:bg-[#fafafa] dark:hover:bg-[#111111] flex items-center justify-center transition" title="Next Month">
-                                ›
-                            </button>
+                            <span class="card-tag">Monthly</span>
                         </div>
                     </div>
 
-                    <!-- Weekday Headers -->
-                    <div class="grid grid-cols-7 gap-1 text-center mb-1 font-mono text-[9px] text-[#888888] dark:text-[#666666] uppercase font-medium">
-                        <span class="py-0.5">Su</span>
-                        <span class="py-0.5">Mo</span>
-                        <span class="py-0.5">Tu</span>
-                        <span class="py-0.5">We</span>
-                        <span class="py-0.5">Th</span>
-                        <span class="py-0.5">Fr</span>
-                        <span class="py-0.5">Sa</span>
-                    </div>
+                    <div class="card-body">
+                        <!-- Calendar Month & Year Navigation -->
+                        <div class="calendar-nav-bar">
+                            <div class="calendar-title-selectors">
+                                <select id="cal-month-select" class="cal-nav-select" aria-label="Select Month">
+                                    <option value="0">January</option>
+                                    <option value="1">February</option>
+                                    <option value="2">March</option>
+                                    <option value="3">April</option>
+                                    <option value="4">May</option>
+                                    <option value="5">June</option>
+                                    <option value="6">July</option>
+                                    <option value="7">August</option>
+                                    <option value="8">September</option>
+                                    <option value="9">October</option>
+                                    <option value="10">November</option>
+                                    <option value="11">December</option>
+                                </select>
+                                <select id="cal-year-select" class="cal-nav-select" aria-label="Select Year">
+                                    <!-- Populated dynamically up to 2100 in app.js -->
+                                </select>
+                            </div>
+                            <div class="calendar-nav-controls">
+                                <button id="cal-prev-btn" class="cal-nav-btn" type="button" title="Previous Month"
+                                    aria-label="Previous Month">‹</button>
+                                <button id="cal-today-btn" class="cal-today-btn" type="button"
+                                    title="Jump to Today">Today</button>
+                                <button id="cal-next-btn" class="cal-nav-btn" type="button" title="Next Month"
+                                    aria-label="Next Month">›</button>
+                            </div>
+                        </div>
 
-                    <!-- Days Grid -->
-                    <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-center font-mono">
-                        <!-- Generated dynamically -->
-                    </div>
+                        <!-- Weekday Headers -->
+                        <div class="calendar-weekdays-row" aria-hidden="true">
+                            <span>Su</span>
+                            <span>Mo</span>
+                            <span>Tu</span>
+                            <span>We</span>
+                            <span>Th</span>
+                            <span>Fr</span>
+                            <span>Sa</span>
+                        </div>
 
-                    <!-- Assignee Legend -->
-                    <div class="mt-3 pt-2.5 border-t border-[#eaeaea] dark:border-[#222222] flex items-center justify-between text-[#888888] dark:text-[#666666] font-mono text-[10px]">
-                        <span>tags:</span>
-                        <div class="flex items-center gap-2.5">
-                            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#0070f3]"></span> Dad</span>
-                            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#eb367f]"></span> Mom</span>
+                        <!-- Days Grid -->
+                        <div id="calendar-days-grid" class="calendar-grid">
+                            <!-- Generated dynamically by app.js -->
+                        </div>
+
+                        <!-- Calendar Legend -->
+                        <div class="calendar-legend">
+                            <span>Assignees:</span>
+                            <div class="legend-items">
+                                <span class="legend-item"><span class="cal-dot" data-person="Dad"></span> Dad</span>
+                                <span class="legend-item"><span class="cal-dot" data-person="Mom"></span> Mom</span>
+                                <span class="legend-item"><span class="cal-dot" data-person="Alex"></span> Alex</span>
+                                <span class="legend-item"><span class="cal-dot" data-person="Chicky"></span>
+                                    Chicky</span>
+                                <span class="legend-item"><span class="cal-dot" data-person="Kimi"></span> Kimi</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- Summary Overview Metric Card (4-grid with Overdue) -->
-                <div class="bg-white dark:bg-[#000000] border border-[#eaeaea] dark:border-[#222222] rounded-md p-3.5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] dark:shadow-[0_0_0_1px_rgba(0,0,0,0.02)] space-y-2.5 transition-colors duration-150">
-                    <div class="flex items-center justify-between">
-                        <span id="summary-date-heading" class="text-xs font-semibold uppercase tracking-wider text-black dark:text-white font-mono">Scope Summary</span>
-                        <span class="font-mono text-[9px] px-1 py-0.2 rounded border border-[#eaeaea] dark:border-[#333333] text-[#888888] bg-[#fafafa] dark:bg-transparent">metrics</span>
+                <!-- Analytics Summary Glass Card -->
+                <section class="glass-card" aria-labelledby="analytics-card-title">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-title-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                                </svg>
+                            </div>
+                            <h2 id="analytics-card-title" class="card-title">Tasks Overview</h2>
+                        </div>
+                        <span id="summary-date-heading" class="card-tag">All Dates</span>
                     </div>
 
-                    <div class="grid grid-cols-4 gap-1.5">
-                        <div class="bg-[#fafafa] dark:bg-[#111111] border border-[#eaeaea] dark:border-[#222222] rounded p-1.5 text-center">
-                            <div id="stat-total-tasks" class="font-mono text-sm font-semibold text-black dark:text-white">0</div>
-                            <div class="font-mono text-[9px] uppercase text-[#888888] dark:text-[#666666]">Total</div>
+                    <div class="card-body">
+                        <!-- 4-Stat Metric Grid -->
+                        <div class="summary-stats-grid">
+                            <div class="stat-tile total">
+                                <span id="stat-total-tasks" class="stat-value">0</span>
+                                <span class="stat-label">Total</span>
+                            </div>
+                            <div class="stat-tile active">
+                                <span id="stat-pending-tasks" class="stat-value">0</span>
+                                <span class="stat-label">Active</span>
+                            </div>
+                            <div class="stat-tile overdue">
+                                <span id="stat-overdue-tasks" class="stat-value">0</span>
+                                <span class="stat-label">Overdue</span>
+                            </div>
+                            <div class="stat-tile done">
+                                <span id="stat-done-tasks" class="stat-value">0</span>
+                                <span class="stat-label">Done</span>
+                            </div>
                         </div>
-                        <div class="bg-[#fafafa] dark:bg-[#111111] border border-[#0070f3]/20 dark:border-[#222222] rounded p-1.5 text-center">
-                            <div id="stat-pending-tasks" class="font-mono text-sm font-semibold text-[#0070f3]">0</div>
-                            <div class="font-mono text-[9px] uppercase text-[#0070f3]/80 dark:text-[#666666]">Active</div>
-                        </div>
-                        <div class="bg-[#fafafa] dark:bg-[#111111] border border-[#ee0000]/20 dark:border-[#222222] rounded p-1.5 text-center">
-                            <div id="stat-overdue-tasks" class="font-mono text-sm font-semibold text-[#ee0000]">0</div>
-                            <div class="font-mono text-[9px] uppercase text-[#ee0000]">Overdue</div>
-                        </div>
-                        <div class="bg-[#fafafa] dark:bg-[#111111] border border-[#50e3c2]/30 dark:border-[#222222] rounded p-1.5 text-center">
-                            <div id="stat-done-tasks" class="font-mono text-sm font-semibold text-[#059669] dark:text-[#50e3c2]">0</div>
-                            <div class="font-mono text-[9px] uppercase text-[#059669]/80 dark:text-[#666666]">Done</div>
-                        </div>
-                    </div>
 
-                    <button 
-                        id="btn-show-all-dates" 
-                        class="w-full py-1.5 px-2 bg-[#fafafa] dark:bg-[#111111] hover:bg-[#eaeaea] dark:hover:bg-[#222222] text-black dark:text-white border border-[#eaeaea] dark:border-[#333333] rounded font-mono text-[11px] transition focus:outline-none"
-                    >
-                        View all scheduled records
-                    </button>
-                </div>
+                        <!-- Reset Filter Button -->
+                        <button id="btn-show-all-dates" class="btn-secondary-block" type="button">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 14 14"></polyline>
+                            </svg>
+                            <span>View All Scheduled Tasks</span>
+                        </button>
+                    </div>
+                </section>
+
             </div>
+
         </div>
+
     </main>
 
-    <!-- Geist Minimalist Reminder Modal -->
-    <div id="reminder-modal-overlay" class="fixed inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-150">
-        <div class="bg-white dark:bg-[#000000] border border-[#eaeaea] dark:border-[#333333] rounded-md p-5 max-w-sm w-full shadow-2xl space-y-3">
-            <div class="flex items-center justify-between border-b border-[#eaeaea] dark:border-[#222222] pb-2">
-                <div class="flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#f5a623] animate-pulse"></span>
-                    <h3 class="font-mono text-[11px] uppercase tracking-wider text-black dark:text-white font-semibold">Reminder Alert</h3>
+    <!-- Glassmorphic Reminder Modal Popup -->
+    <div id="reminder-modal-overlay" class="modal-overlay" role="dialog" aria-modal="true"
+        aria-labelledby="modal-alert-title">
+        <div class="modal-box">
+            <div class="modal-header-row">
+                <div class="modal-alert-badge">
+                    <span>🔔</span>
+                    <span id="modal-alert-title">Task Reminder Alert</span>
                 </div>
-                <span class="font-mono text-[10px] text-[#f5a623]">due now</span>
-            </div>
-            
-            <div class="bg-[#fafafa] dark:bg-[#111111] border border-[#eaeaea] dark:border-[#222222] rounded p-3 space-y-1">
-                <div id="modal-task-title" class="text-xs font-semibold text-black dark:text-white">Sample Task Title</div>
-                <div id="modal-task-meta" class="font-mono text-[11px] text-[#666666] dark:text-[#888888]">Scheduled for today</div>
+                <span class="card-tag">Due Now</span>
             </div>
 
-            <div class="flex justify-end pt-1">
-                <button 
-                    id="btn-modal-dismiss" 
-                    type="button" 
-                    class="h-7 px-3 bg-black dark:bg-white hover:bg-[#222222] dark:hover:bg-[#eaeaea] text-white dark:text-black rounded font-mono text-xs transition focus:outline-none"
-                >
-                    Dismiss
-                </button>
+            <div class="modal-content-card">
+                <h3 id="modal-task-title" class="modal-task-title">Sample Task</h3>
+                <p id="modal-task-meta" class="modal-task-meta">Scheduled for today</p>
             </div>
+
+            <button id="btn-modal-dismiss" class="btn-primary" type="button" style="width: 100%;">
+                Dismiss Alert
+            </button>
         </div>
     </div>
 
-    <!-- Application JavaScript Logic -->
-    <script>
-        // Storage keys
-        const STORAGE_KEY = 'vibe_tasks_matrix_v2';
-        const THEME_STORAGE_KEY = 'task_matrix_theme_mode_v2';
-        const NOTIF_TOGGLE_KEY = 'vibe_tasks_matrix_notifications_enabled';
+    <!-- Google Calendar Export & Real-Time Sync Modal -->
+    <div id="gcal-modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="gcal-modal-title">
+        <div class="modal-box gcal-modal-box">
+            <div class="modal-header-row">
+                <div class="modal-alert-badge gcal-badge">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                        <path d="M12 14v4M10 16h4"></path>
+                    </svg>
+                    <span id="gcal-modal-title">Google Calendar Direct Sync</span>
+                </div>
+                <button id="btn-close-gcal-modal" class="btn-icon-action" type="button" aria-label="Close Modal" title="Close">✕</button>
+            </div>
 
-        let tasks = [];
-        let currentFilter = 'all'; // 'all' | 'active' | 'completed'
-        let selectedCalendarDate = null; // 'YYYY-MM-DD' or null for all
-        let currentCalendarDate = new Date();
-        let notificationsEnabled = true;
-        let isDarkMode = false;
+            <!-- Direct Real-Time Push Hero Section -->
+            <div class="gcal-direct-card">
+                <div class="gcal-direct-header">
+                    <span class="direct-icon">⚡</span>
+                    <div>
+                        <h4 class="direct-title">Real-Time Push to Google Calendar</h4>
+                        <p class="direct-desc">Push your active tasks directly into your primary Google Calendar without downloading files.</p>
+                    </div>
+                </div>
 
-        const PERSON_COLORS = {
-            Dad: '#0070f3',
-            Mom: '#eb367f'
-        };
-        const PEOPLE = Object.keys(PERSON_COLORS);
+                <!-- Primary Real-Time Push Button -->
+                <button id="btn-modal-direct-push" class="btn-primary gcal-push-btn" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="sync-icon">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                    </svg>
+                    <span id="btn-modal-push-text">Push All Active Tasks to Google Calendar</span>
+                </button>
 
-        // DOM Elements
-        const taskForm = document.getElementById('task-form');
-        const taskTitleInput = document.getElementById('task-title-input');
-        const taskDateInput = document.getElementById('task-date-input');
-        const taskStartTimeSelect = document.getElementById('task-starttime-select');
-        const taskDurationSelect = document.getElementById('task-duration-select');
-        const taskReminderInput = document.getElementById('task-reminder-input');
-        const taskPersonSelect = document.getElementById('task-person-select');
-        const taskList = document.getElementById('task-list');
-        const tasksEmptyState = document.getElementById('tasks-empty-state');
-        const taskCountText = document.getElementById('task-count-text');
-        const filterPillBtns = document.querySelectorAll('.filter-pill-btn');
-        const activeDateContainer = document.getElementById('active-date-container');
-        const activeDateLabel = document.getElementById('active-date-label');
-        const btnClearDateFilter = document.getElementById('btn-clear-date-filter');
-        const btnClearCompleted = document.getElementById('btn-clear-completed');
+                <!-- Client ID Configuration Block -->
+                <div class="gcal-config-block">
+                    <div class="gcal-config-header">
+                        <label for="gcal-client-id-input" class="gcal-config-label">Google OAuth Client ID:</label>
+                        <span id="gcal-auth-status-badge" class="auth-status-badge not-configured">Not Connected</span>
+                    </div>
+                    <div class="gcal-input-group">
+                        <input type="text" id="gcal-client-id-input" class="text-input gcal-client-input" placeholder="Paste your Google OAuth Client ID here..." autocomplete="off" />
+                        <button type="button" id="btn-save-gcal-client-id" class="btn-save-client-id">Save</button>
+                    </div>
+                    <div class="gcal-help-hint">
+                        <span>Need a Client ID?</span>
+                        <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">Create in Google Cloud Console ↗</a>
+                        <span class="help-subtext">(Enable Google Calendar API &amp; add authorized origin http://localhost:8000)</span>
+                    </div>
+                    <div id="gcal-file-protocol-warning" class="gcal-protocol-warning" style="display:none;">
+                        ⚠️ Running directly from <code>file:///</code>? Google OAuth requires a local server. Run <code>python -m http.server 8000</code> and open <code>http://localhost:8000</code>.
+                    </div>
+                </div>
+            </div>
 
-        // Calendar Elements
-        const calMonthYear = document.getElementById('cal-month-year');
-        const calendarDaysGrid = document.getElementById('calendar-days-grid');
-        const calPrevBtn = document.getElementById('cal-prev-btn');
-        const calNextBtn = document.getElementById('cal-next-btn');
-        const calTodayBtn = document.getElementById('cal-today-btn');
-        const summaryDateHeading = document.getElementById('summary-date-heading');
-        const statTotalTasks = document.getElementById('stat-total-tasks');
-        const statPendingTasks = document.getElementById('stat-pending-tasks');
-        const statOverdueTasks = document.getElementById('stat-overdue-tasks');
-        const statDoneTasks = document.getElementById('stat-done-tasks');
-        const btnShowAllDates = document.getElementById('btn-show-all-dates');
-        const headerDateBadge = document.getElementById('header-date-badge');
-
-        // Header Action Elements
-        const themeToggleBtn = document.getElementById('theme-toggle-btn');
-        const themeBtnIcon = document.getElementById('theme-btn-icon');
-        const themeBtnText = document.getElementById('theme-btn-text');
-        const enableNotifBtn = document.getElementById('enable-notifications-btn');
-        const notifBtnIcon = document.getElementById('notif-btn-icon');
-        const notifBtnText = document.getElementById('notif-btn-text');
-        const reminderModalOverlay = document.getElementById('reminder-modal-overlay');
-        const modalTaskTitle = document.getElementById('modal-task-title');
-        const modalTaskMeta = document.getElementById('modal-task-meta');
-        const btnModalDismiss = document.getElementById('btn-modal-dismiss');
-
-        // Initialize App
-        document.addEventListener('DOMContentLoaded', () => {
-            initTheme();
-
-            const todayStr = getLocalDateString(new Date());
-            taskDateInput.value = todayStr;
-            taskDateInput.min = todayStr;
-
-            if (headerDateBadge) {
-                const now = new Date();
-                headerDateBadge.textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-            }
-
-            taskStartTimeSelect.innerHTML = buildTimeOptionsHTML('');
-
-            loadTasks();
-            setupEventListeners();
-            loadNotificationToggleState();
-            checkNotificationPermissionStatus();
-            
-            selectedCalendarDate = todayStr;
-            renderCalendar();
-            renderTasks();
-
-            setInterval(checkReminders, 5000);
-        });
-
-        /**
-         * Theme Handling (Light / Dark)
-         */
-        function initTheme() {
-            const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-            if (savedTheme) {
-                isDarkMode = savedTheme === 'dark';
-            } else {
-                isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            }
-            applyTheme();
-        }
-
-        function toggleTheme() {
-            isDarkMode = !isDarkMode;
-            localStorage.setItem(THEME_STORAGE_KEY, isDarkMode ? 'dark' : 'light');
-            applyTheme();
-            renderCalendar();
-            renderTasks();
-        }
-
-        function applyTheme() {
-            const htmlEl = document.documentElement;
-            if (isDarkMode) {
-                htmlEl.classList.add('dark');
-                themeBtnIcon.textContent = '🌙';
-                if (themeBtnText) themeBtnText.textContent = 'Dark';
-            } else {
-                htmlEl.classList.remove('dark');
-                themeBtnIcon.textContent = '☀️';
-                if (themeBtnText) themeBtnText.textContent = 'Light';
-            }
-        }
-
-        /**
-         * Converts Date object to local YYYY-MM-DD string
-         */
-        function getLocalDateString(d) {
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        /**
-         * Builds <option> HTML for 24-hour dropdown (00:00 to 23:30)
-         */
-        function buildTimeOptionsHTML(selectedValue) {
-            let html = `<option value="" ${!selectedValue ? 'selected' : ''}>-- none --</option>`;
-            for (let h = 0; h < 24; h++) {
-                for (const m of [0, 30]) {
-                    const hh = String(h).padStart(2, '0');
-                    const mm = String(m).padStart(2, '0');
-                    const val = `${hh}:${mm}`;
-                    html += `<option value="${val}" ${val === selectedValue ? 'selected' : ''}>${val}</option>`;
-                }
-            }
-            return html;
-        }
-
-        /**
-         * Load tasks from localStorage safely
-         */
-        function loadTasks() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    tasks = JSON.parse(saved) || [];
-                    tasks = tasks.map(t => PEOPLE.includes(t.person) ? t : { ...t, person: 'Dad' });
-                }
-            } catch (err) {
-                console.error('Error loading tasks:', err);
-                tasks = [];
-            }
-        }
-
-        /**
-         * Save tasks to localStorage
-         */
-        function saveTasks() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-            } catch (err) {
-                console.error('Error saving tasks:', err);
-            }
-        }
-
-        /**
-         * Setup Event Listeners
-         */
-        function setupEventListeners() {
-            themeToggleBtn.addEventListener('click', toggleTheme);
-
-            taskForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const title = taskTitleInput.value.trim();
-                const date = taskDateInput.value;
-                const startTime = taskStartTimeSelect.value;
-                const duration = taskDurationSelect.value;
-                const reminder = taskReminderInput.value;
-                const person = taskPersonSelect.value;
-
-                if (!title || !date) return;
-
-                const newTask = {
-                    id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-                    title: title,
-                    date: date,
-                    startTime: startTime || null,
-                    duration: duration,
-                    reminder: reminder || null,
-                    person: person,
-                    completed: false,
-                    notified: false,
-                    createdAt: Date.now()
-                };
-
-                tasks.unshift(newTask);
-                saveTasks();
-
-                taskTitleInput.value = '';
-                taskStartTimeSelect.value = '';
-                taskReminderInput.value = '';
-                taskTitleInput.focus();
-
-                selectedCalendarDate = date;
-                currentCalendarDate = new Date(date + 'T00:00:00');
-
-                renderCalendar();
-                renderTasks();
-            });
-
-            // List item clicks
-            taskList.addEventListener('click', (e) => {
-                const target = e.target;
-                const itemEl = target.closest('.task-item');
-                if (!itemEl) return;
-
-                const id = itemEl.dataset.id;
-
-                if (target.closest('.btn-delete-task')) {
-                    tasks = tasks.filter(t => t.id !== id);
-                    saveTasks();
-                    renderCalendar();
-                    renderTasks();
-                    return;
-                }
-
-                if (target.closest('.btn-edit-task')) {
-                    activateInlineEdit(itemEl, id);
-                    return;
-                }
-
-                if (target.closest('.task-toggle-area')) {
-                    tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
-                    saveTasks();
-                    renderCalendar();
-                    renderTasks();
-                }
-            });
-
-            // Filter Tabs
-            filterPillBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    filterPillBtns.forEach(b => {
-                        b.classList.remove('bg-white', 'dark:bg-[#222222]', 'text-black', 'dark:text-white', 'shadow-sm');
-                        b.classList.add('text-[#666666]', 'dark:text-[#888888]');
-                    });
-                    btn.classList.add('bg-white', 'dark:bg-[#222222]', 'text-black', 'dark:text-white', 'shadow-sm');
-                    btn.classList.remove('text-[#666666]', 'dark:text-[#888888]');
-                    currentFilter = btn.dataset.filter;
-                    renderTasks();
-                });
-            });
-
-            // Clear Completed
-            btnClearCompleted.addEventListener('click', () => {
-                tasks = tasks.filter(t => !t.completed);
-                saveTasks();
-                renderCalendar();
-                renderTasks();
-            });
-
-            // Clear Date filter button
-            btnClearDateFilter.addEventListener('click', () => {
-                selectedCalendarDate = null;
-                renderCalendar();
-                renderTasks();
-            });
-
-            btnShowAllDates.addEventListener('click', () => {
-                selectedCalendarDate = null;
-                renderCalendar();
-                renderTasks();
-            });
-
-            // Calendar Navigation
-            calPrevBtn.addEventListener('click', () => {
-                currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-                renderCalendar();
-            });
-
-            calNextBtn.addEventListener('click', () => {
-                currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-                renderCalendar();
-            });
-
-            calTodayBtn.addEventListener('click', () => {
-                currentCalendarDate = new Date();
-                selectedCalendarDate = getLocalDateString(new Date());
-                renderCalendar();
-                renderTasks();
-            });
-
-            // Notification on/off toggle button
-            enableNotifBtn.addEventListener('click', () => {
-                notificationsEnabled = !notificationsEnabled;
-                saveNotificationToggleState();
-                updateNotificationButtonUI();
-
-                if (notificationsEnabled && "Notification" in window && Notification.permission !== "granted") {
-                    requestNotificationPermission();
-                }
-            });
-
-            // Dismiss Reminder Modal
-            btnModalDismiss.addEventListener('click', () => {
-                reminderModalOverlay.classList.add('opacity-0', 'pointer-events-none');
-                reminderModalOverlay.classList.remove('opacity-100', 'pointer-events-auto');
-            });
-        }
-
-        /**
-         * Render Task List with clean Geist styling & Subtle Overdue Differentiation
-         */
-        function renderTasks() {
-            const todayStr = getLocalDateString(new Date());
-
-            let filtered = tasks;
-            if (selectedCalendarDate) {
-                filtered = filtered.filter(t => t.date === selectedCalendarDate);
-                activeDateContainer.style.display = 'inline-flex';
-                
-                const dateParts = selectedCalendarDate.split('-');
-                const dObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
-                activeDateLabel.textContent = dObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            } else {
-                activeDateContainer.style.display = 'none';
-            }
-
-            if (currentFilter === 'active') {
-                filtered = filtered.filter(t => !t.completed);
-            } else if (currentFilter === 'completed') {
-                filtered = filtered.filter(t => t.completed);
-            }
-
-            taskList.innerHTML = '';
-
-            filtered.forEach(task => {
-                const li = document.createElement('li');
-                
-                // Status Calculation
-                const isOverdue = !task.completed && task.date < todayStr;
-                const isDueToday = !task.completed && task.date === todayStr;
-
-                let statusClass = '';
-                if (task.completed) {
-                    statusClass = 'completed bg-[#fafafa]/50 dark:bg-[#0a0a0a]';
-                } else if (isOverdue) {
-                    statusClass = 'is-overdue';
-                } else if (isDueToday) {
-                    statusClass = 'is-due-today';
-                }
-
-                li.className = `task-item group flex items-start justify-between gap-2.5 p-2.5 hover:bg-[#fafafa] dark:hover:bg-[#111111] transition-colors ${statusClass}`;
-                li.dataset.id = task.id;
-
-                const dateParts = task.date.split('-');
-                const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
-                const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-                const personName = task.person || 'Dad';
-                const personBadgeStyles = personName === 'Mom' 
-                    ? 'border-[#eb367f]/30 text-[#eb367f] bg-[#eb367f]/5' 
-                    : 'border-[#0070f3]/30 text-[#0070f3] bg-[#0070f3]/5';
-
-                // Status Badge
-                let statusBadgeHTML = '';
-                if (isOverdue) {
-                    statusBadgeHTML = `<span class="inline-flex items-center px-1 py-0.1 rounded border border-[#ee0000]/40 text-[#ee0000] bg-[#ee0000]/10 font-mono font-semibold text-[9px] uppercase tracking-wider">overdue</span>`;
-                } else if (isDueToday) {
-                    statusBadgeHTML = `<span class="inline-flex items-center px-1 py-0.1 rounded border border-[#f5a623]/40 text-[#f5a623] bg-[#f5a623]/10 font-mono font-medium text-[9px] uppercase tracking-wider">today</span>`;
-                }
-
-                li.innerHTML = `
-                    <div class="flex items-start gap-2.5 min-w-0 flex-1">
-                        <div class="task-toggle-area pt-0.5 cursor-pointer">
-                            <div class="geist-checkbox w-3.5 h-3.5 rounded text-black dark:text-white flex items-center justify-center ${isOverdue ? 'border-[#ee0000]/60' : ''}">
-                                <svg class="w-2 h-2 ${task.completed ? 'opacity-100' : 'opacity-0'} transition-opacity stroke-white dark:stroke-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="20 6 9 17 4 12"></polyline>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="space-y-0.5 min-w-0 flex-1">
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <p class="task-title text-xs font-medium text-black dark:text-[#ededed] leading-snug break-words"></p>
-                                ${statusBadgeHTML}
-                            </div>
-                            <div class="flex flex-wrap items-center gap-1 font-mono text-[10px] text-[#888888] dark:text-[#666666]">
-                                <span class="inline-flex items-center px-1 py-0.1 rounded border ${personBadgeStyles}">
-                                    ${personName}
-                                </span>
-                                <span class="inline-flex items-center px-1 py-0.1 rounded border ${isOverdue ? 'border-[#ee0000]/30 text-[#ee0000]' : 'border-[#eaeaea] dark:border-[#222222]'} bg-[#fafafa] dark:bg-[#111111]">
-                                    ${formattedDate}
-                                </span>
-                                ${task.startTime ? `<span class="inline-flex items-center px-1 py-0.1 rounded border border-[#eaeaea] dark:border-[#222222] bg-[#fafafa] dark:bg-[#111111]">${task.startTime}</span>` : ''}
-                                <span class="inline-flex items-center px-1 py-0.1 rounded border border-[#eaeaea] dark:border-[#222222] bg-[#fafafa] dark:bg-[#111111]">${task.duration}</span>
-                                ${task.reminder ? `<span class="inline-flex items-center px-1 py-0.1 rounded border border-[#f5a623]/30 text-[#f5a623] bg-[#f5a623]/5">🔔 ${task.reminder}</span>` : ''}
-                            </div>
+            <!-- Alternative / Fallback Bulk iCal Export Section -->
+            <details class="gcal-export-accordion">
+                <summary class="export-accordion-summary">
+                    <span>📦 Or Export as standard .ics file (Zero credentials needed)</span>
+                </summary>
+                <div class="export-accordion-content">
+                    <div class="gcal-scope-card">
+                        <span class="gcal-scope-label">Export Scope:</span>
+                        <div class="gcal-options-grid">
+                            <label class="gcal-option-item">
+                                <input type="radio" name="gcal-scope" value="active" checked />
+                                <div class="gcal-option-body">
+                                    <span class="gcal-option-title">Active</span>
+                                    <span class="gcal-option-sub" id="gcal-count-active">0 tasks</span>
+                                </div>
+                            </label>
+                            <label class="gcal-option-item">
+                                <input type="radio" name="gcal-scope" value="month" />
+                                <div class="gcal-option-body">
+                                    <span class="gcal-option-title">This Month</span>
+                                    <span class="gcal-option-sub" id="gcal-count-month">0 tasks</span>
+                                </div>
+                            </label>
+                            <label class="gcal-option-item">
+                                <input type="radio" name="gcal-scope" value="all" />
+                                <div class="gcal-option-body">
+                                    <span class="gcal-option-title">All Tasks</span>
+                                    <span class="gcal-option-sub" id="gcal-count-all">0 tasks</span>
+                                </div>
+                            </label>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity font-mono text-xs">
-                        <button class="btn-edit-task p-1 rounded text-[#888888] hover:text-black dark:hover:text-white transition" title="Edit task">
-                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    <div class="gcal-actions-row" style="margin-top: 10px;">
+                        <button id="btn-download-ics" class="btn-primary gcal-download-btn" type="button">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
                             </svg>
-                        </button>
-                        <button class="btn-delete-task p-1 rounded text-[#888888] hover:text-red-500 transition" title="Delete task">
-                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
+                            <span>Download .ics File</span>
                         </button>
                     </div>
-                `;
+                </div>
+            </details>
+        </div>
+    </div>
 
-                li.querySelector('.task-title').textContent = task.title;
-                taskList.appendChild(li);
-            });
+    <!-- Floating Toast Notification -->
+    <div id="toast-notification" class="toast-notification" role="status" aria-live="polite">
+        <span id="toast-message">Opening Google Calendar...</span>
+    </div>
 
-            if (filtered.length === 0) {
-                tasksEmptyState.classList.remove('hidden');
-            } else {
-                tasksEmptyState.classList.add('hidden');
-            }
-
-            const activeCount = tasks.filter(t => !t.completed).length;
-            taskCountText.textContent = `${activeCount} ${activeCount === 1 ? 'item' : 'items'}`;
-
-            updateCalendarSummary();
-        }
-
-        /**
-         * Inline Edit Mode with Geist form styling
-         */
-        function activateInlineEdit(itemEl, id) {
-            const task = tasks.find(t => t.id === id);
-            if (!task) return;
-
-            const currentPerson = task.person || 'Dad';
-
-            itemEl.innerHTML = `
-                <form class="task-edit-form w-full p-2 space-y-2 bg-[#fafafa] dark:bg-[#111111] rounded border border-[#eaeaea] dark:border-[#333333]" id="edit-form-${id}">
-                    <input
-                        type="text"
-                        class="w-full bg-white dark:bg-black border border-[#eaeaea] dark:border-[#333333] rounded px-2 py-1 text-xs text-black dark:text-white placeholder-[#888888] focus:outline-none focus:border-black dark:focus:border-white font-sans"
-                        id="edit-title-${id}"
-                        value=""
-                        placeholder="Task title"
-                        required
-                        autocomplete="off"
-                    />
-                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 font-mono">
-                        <input type="date" class="bg-white dark:bg-black border border-[#eaeaea] dark:border-[#333333] rounded px-1.5 py-0.5 text-[11px] text-black dark:text-white" id="edit-date-${id}" value="${task.date}" required />
-                        <select class="bg-white dark:bg-black border border-[#eaeaea] dark:border-[#333333] rounded px-1.5 py-0.5 text-[11px] text-black dark:text-white" id="edit-starttime-${id}">
-                            ${buildTimeOptionsHTML(task.startTime || '')}
-                        </select>
-                        <select class="bg-white dark:bg-black border border-[#eaeaea] dark:border-[#333333] rounded px-1.5 py-0.5 text-[11px] text-black dark:text-white" id="edit-duration-${id}">
-                            <option value="15 min" ${task.duration === '15 min' ? 'selected' : ''}>15m</option>
-                            <option value="30 min" ${task.duration === '30 min' ? 'selected' : ''}>30m</option>
-                            <option value="45 min" ${task.duration === '45 min' ? 'selected' : ''}>45m</option>
-                            <option value="1 hr" ${task.duration === '1 hr' ? 'selected' : ''}>1h</option>
-                            <option value="2 hrs" ${task.duration === '2 hrs' ? 'selected' : ''}>2h</option>
-                            <option value="4 hrs" ${task.duration === '4 hrs' ? 'selected' : ''}>4h</option>
-                            <option value="Full day" ${task.duration === 'Full day' ? 'selected' : ''}>Day</option>
-                        </select>
-                        <input type="time" class="bg-white dark:bg-black border border-[#eaeaea] dark:border-[#333333] rounded px-1.5 py-0.5 text-[11px] text-black dark:text-white" id="edit-reminder-${id}" value="${task.reminder || ''}" />
-                        <select class="bg-white dark:bg-black border border-[#eaeaea] dark:border-[#333333] rounded px-1.5 py-0.5 text-[11px] text-black dark:text-white" id="edit-person-${id}">
-                            <option value="Dad" ${currentPerson === 'Dad' ? 'selected' : ''}>Dad</option>
-                            <option value="Mom" ${currentPerson === 'Mom' ? 'selected' : ''}>Mom</option>
-                        </select>
-                    </div>
-                    <div class="flex justify-end gap-1.5 font-mono text-xs">
-                        <button type="button" class="px-2 py-0.5 rounded bg-[#eaeaea] dark:bg-[#222222] text-[#666666] dark:text-[#888888] hover:text-black dark:hover:text-white text-[11px] transition" data-cancel-id="${id}">cancel</button>
-                        <button type="submit" class="px-2.5 py-0.5 rounded bg-black dark:bg-white text-white dark:text-black text-[11px] transition">save</button>
-                    </div>
-                </form>
-            `;
-
-            document.getElementById(`edit-title-${id}`).value = task.title;
-            document.getElementById(`edit-title-${id}`).focus();
-
-            document.getElementById(`edit-form-${id}`).addEventListener('submit', (e) => {
-                e.preventDefault();
-                const newTitle = document.getElementById(`edit-title-${id}`).value.trim();
-                const newDate  = document.getElementById(`edit-date-${id}`).value;
-                const newStartTime = document.getElementById(`edit-starttime-${id}`).value || null;
-                const newDuration = document.getElementById(`edit-duration-${id}`).value;
-                const newReminder = document.getElementById(`edit-reminder-${id}`).value || null;
-                const newPerson   = document.getElementById(`edit-person-${id}`).value;
-
-                if (!newTitle || !newDate) return;
-
-                tasks = tasks.map(t => t.id === id
-                    ? { ...t, title: newTitle, date: newDate, startTime: newStartTime, duration: newDuration, reminder: newReminder, person: newPerson, notified: false }
-                    : t
-                );
-                saveTasks();
-
-                currentCalendarDate = new Date(newDate + 'T00:00:00');
-                selectedCalendarDate = newDate;
-
-                renderCalendar();
-                renderTasks();
-            });
-
-            document.querySelector(`[data-cancel-id="${id}"]`).addEventListener('click', () => {
-                renderTasks();
-            });
-        }
-
-        /**
-         * Render Geist Monthly Calendar (Dense with Overdue indicators)
-         */
-        function renderCalendar() {
-            const year = currentCalendarDate.getFullYear();
-            const month = currentCalendarDate.getMonth();
-
-            const monthNames = ["January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-            ];
-            calMonthYear.textContent = `${monthNames[month]} ${year}`;
-
-            calendarDaysGrid.innerHTML = '';
-
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const lastDate = new Date(year, month + 1, 0).getDate();
-            const todayFormatted = getLocalDateString(new Date());
-
-            // Empty prefix cells
-            for (let i = 0; i < firstDayIndex; i++) {
-                const emptyCell = document.createElement('div');
-                emptyCell.className = 'aspect-square rounded border border-transparent';
-                calendarDaysGrid.appendChild(emptyCell);
-            }
-
-            // Month days
-            for (let day = 1; day <= lastDate; day++) {
-                const dayCell = document.createElement('button');
-                dayCell.type = 'button';
-                
-                const monthStr = String(month + 1).padStart(2, '0');
-                const dayStr = String(day).padStart(2, '0');
-                const cellDateStr = `${year}-${monthStr}-${dayStr}`;
-                dayCell.dataset.date = cellDateStr;
-
-                const isToday = (cellDateStr === todayFormatted);
-                const isSelected = (cellDateStr === selectedCalendarDate);
-
-                let baseClasses = "aspect-square rounded flex flex-col items-center justify-center relative text-[11px] font-mono transition focus:outline-none ";
-                if (isSelected) {
-                    baseClasses += "bg-black dark:bg-white text-white dark:text-black font-semibold shadow-sm ";
-                } else if (isToday) {
-                    baseClasses += "border border-black dark:border-white text-black dark:text-white font-semibold ";
-                } else {
-                    baseClasses += "text-[#666666] dark:text-[#888888] hover:bg-[#fafafa] dark:hover:bg-[#111111] hover:text-black dark:hover:text-white border border-transparent ";
-                }
-                dayCell.className = baseClasses;
-
-                dayCell.innerHTML = `<span>${day}</span>`;
-
-                // Multi-person dot indicators & Overdue marker
-                const tasksOnThisDate = tasks.filter(t => t.date === cellDateStr);
-                if (tasksOnThisDate.length > 0) {
-                    const hasOverdue = tasksOnThisDate.some(t => !t.completed && t.date < todayFormatted);
-                    const peopleOnDay = [...new Set(tasksOnThisDate.map(t => t.person || 'Dad'))];
-                    const dotsRow = document.createElement('div');
-                    dotsRow.className = 'flex items-center justify-center gap-0.5 mt-0.5';
-
-                    if (hasOverdue && !isSelected) {
-                        const ovdDot = document.createElement('span');
-                        ovdDot.className = 'w-1 h-1 rounded-full bg-[#ee0000]';
-                        ovdDot.title = 'Has overdue tasks';
-                        dotsRow.appendChild(ovdDot);
-                    }
-
-                    peopleOnDay.forEach(p => {
-                        const d = document.createElement('span');
-                        d.className = `cal-person-dot w-1 h-1 rounded-full ${isSelected ? 'bg-white dark:bg-black' : ''}`;
-                        d.dataset.person = p;
-                        dotsRow.appendChild(d);
-                    });
-                    dayCell.appendChild(dotsRow);
-                }
-
-                dayCell.addEventListener('click', () => {
-                    if (selectedCalendarDate === cellDateStr) {
-                        selectedCalendarDate = null;
-                    } else {
-                        selectedCalendarDate = cellDateStr;
-                    }
-                    renderCalendar();
-                    renderTasks();
-                });
-
-                calendarDaysGrid.appendChild(dayCell);
-            }
-        }
-
-        /**
-         * Update Calendar Summary Card (Includes Overdue count)
-         */
-        function updateCalendarSummary() {
-            const todayStr = getLocalDateString(new Date());
-
-            let relevantTasks = tasks;
-            if (selectedCalendarDate) {
-                relevantTasks = tasks.filter(t => t.date === selectedCalendarDate);
-                const dateParts = selectedCalendarDate.split('-');
-                const dObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
-                summaryDateHeading.textContent = dObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            } else {
-                summaryDateHeading.textContent = 'All Dates';
-            }
-
-            const total = relevantTasks.length;
-            const done = relevantTasks.filter(t => t.completed).length;
-            const overdue = relevantTasks.filter(t => !t.completed && t.date < todayStr).length;
-            const pending = total - done;
-
-            statTotalTasks.textContent = total;
-            statPendingTasks.textContent = pending;
-            if (statOverdueTasks) statOverdueTasks.textContent = overdue;
-            statDoneTasks.textContent = done;
-        }
-
-        /**
-         * Check and trigger reminders for tasks
-         */
-        function checkReminders() {
-            if (!notificationsEnabled) return;
-
-            const now = new Date();
-            const todayStr = getLocalDateString(now);
-            const currentHours = String(now.getHours()).padStart(2, '0');
-            const currentMinutes = String(now.getMinutes()).padStart(2, '0');
-            const currentTimeStr = `${currentHours}:${currentMinutes}`;
-
-            tasks.forEach(task => {
-                if (!task.completed && !task.notified && task.reminder) {
-                    if (task.date === todayStr && task.reminder <= currentTimeStr) {
-                        task.notified = true;
-                        saveTasks();
-
-                        triggerReminderModal(task);
-                        playChimeSound();
-
-                        if ("Notification" in window && Notification.permission === "granted") {
-                            new Notification(`Task Reminder: ${task.title}`, {
-                                body: `Scheduled for ${task.date} • Duration: ${task.duration}`,
-                                icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230070f3"><circle cx="12" cy="12" r="10"/></svg>'
-                            });
-                        }
-                    }
-                }
-            });
-        }
-
-        /**
-         * Shows floating modal
-         */
-        function triggerReminderModal(task) {
-            modalTaskTitle.textContent = task.title;
-            modalTaskMeta.textContent = `Scheduled: ${task.date} at ${task.reminder} • Duration: ${task.duration}`;
-            reminderModalOverlay.classList.remove('opacity-0', 'pointer-events-none');
-            reminderModalOverlay.classList.add('opacity-100', 'pointer-events-auto');
-        }
-
-        /**
-         * Audio Synthesizer Chime
-         */
-        function playChimeSound() {
-            try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (!AudioContext) return;
-                const ctx = new AudioContext();
-                
-                const now = ctx.currentTime;
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, now); // D5
-                osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
-
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
-
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-
-                osc.start(now);
-                osc.stop(now + 0.8);
-            } catch (e) {
-                console.log('Audio playback prevented by browser policy');
-            }
-        }
-
-        function loadNotificationToggleState() {
-            try {
-                const saved = localStorage.getItem(NOTIF_TOGGLE_KEY);
-                notificationsEnabled = saved === null ? true : saved === 'true';
-            } catch (err) {
-                notificationsEnabled = true;
-            }
-            updateNotificationButtonUI();
-        }
-
-        function saveNotificationToggleState() {
-            try {
-                localStorage.setItem(NOTIF_TOGGLE_KEY, String(notificationsEnabled));
-            } catch (err) {
-                console.error('Error saving notification toggle state:', err);
-            }
-        }
-
-        function updateNotificationButtonUI() {
-            if (notificationsEnabled) {
-                enableNotifBtn.classList.remove('opacity-60');
-                notifBtnIcon.textContent = '🔔';
-                if (notifBtnText) notifBtnText.textContent = 'Alerts On';
-            } else {
-                enableNotifBtn.classList.add('opacity-60');
-                notifBtnIcon.textContent = '🔕';
-                if (notifBtnText) notifBtnText.textContent = 'Alerts Off';
-            }
-        }
-
-        function checkNotificationPermissionStatus() {
-            if (!("Notification" in window)) return;
-        }
-
-        function requestNotificationPermission() {
-            if (!("Notification" in window)) return;
-            Notification.requestPermission().then(permission => {
-                if (permission === "granted") {
-                    new Notification("Notifications Enabled", {
-                        body: "You will receive timely reminders for your scheduled tasks."
-                    });
-                }
-            });
-        }
-    </script>
 </body>
+
 </html>
