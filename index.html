@@ -18,6 +18,10 @@
     <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
 
+    <!-- Content Security Policy: Hardens against XSS and unauthorized frame/script injection -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://accounts.google.com https://apis.google.com https://www.googleapis.com; frame-src https://accounts.google.com; img-src 'self' data: https:;">
+
     <!-- Google Identity Services for Direct Real-Time OAuth & Sync -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
@@ -65,25 +69,26 @@
             <div class="topbar-actions">
                 <div id="header-date-badge" class="header-date-badge">Today</div>
 
-                <!-- Real-Time Google Calendar Direct Sync Button -->
-                <button id="header-gcal-sync-btn" class="header-btn gcal-sync-topbtn" type="button" title="Push all active tasks directly to Google Calendar" aria-label="Sync with Google Calendar">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="sync-icon">
-                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-                    </svg>
-                    <span id="header-gcal-sync-text">Sync GCal</span>
-                </button>
-
                 <!-- Theme Toggle Button -->
                 <button id="theme-toggle-btn" class="header-btn" type="button" title="Toggle Dark / Light Theme"
                     aria-label="Toggle Theme">
-                    <span id="theme-btn-icon">🌙</span>
+                    <span id="theme-btn-icon" class="header-icon-svg" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </span>
                     <span id="theme-btn-text">Dark</span>
                 </button>
 
                 <!-- Notifications Toggle Button -->
                 <button id="enable-notifications-btn" class="header-btn" type="button"
                     title="Toggle Scheduled Reminders" aria-label="Toggle Reminders">
-                    <span id="notif-btn-icon">🔔</span>
+                    <span id="notif-btn-icon" class="header-icon-svg" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                    </span>
                     <span id="notif-btn-text">Alerts On</span>
                 </button>
             </div>
@@ -303,22 +308,6 @@
                                 </svg>
                                 <span>Archive Completed Tasks</span>
                             </button>
-                            <button id="btn-footer-direct-sync" class="btn-link-action gcal-direct" type="button" title="Push all active tasks directly to Google Calendar">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="sync-icon">
-                                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-                                </svg>
-                                <span id="footer-direct-sync-text">Push to Google Calendar</span>
-                            </button>
-                            <button id="btn-footer-gcal" class="btn-link-action gcal" type="button" title="Sync or export tasks to Google Calendar">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                    <path d="M12 14v4M10 16h4"></path>
-                                </svg>
-                                <span>GCal Settings / Export</span>
-                            </button>
                         </div>
                         <div class="sync-status">
                             <span class="sync-dot" id="gcal-live-sync-dot" aria-hidden="true"></span>
@@ -348,15 +337,15 @@
                             <h2 id="cal-card-title" class="card-title">Calendar</h2>
                         </div>
                         <div class="card-header-actions">
-                            <button id="btn-open-gcal-modal" class="btn-gcal-badge" type="button" title="Sync & Export to Google Calendar">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <button id="btn-open-gcal-modal" class="btn-gcal-badge" type="button" title="Open Google Calendar Sync Hub" aria-label="Google Calendar Sync Hub">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="gcal-hub-icon">
                                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                     <line x1="16" y1="2" x2="16" y2="6"></line>
                                     <line x1="8" y1="2" x2="8" y2="6"></line>
                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                     <path d="M12 14v4M10 16h4"></path>
                                 </svg>
-                                <span>Google Cal</span>
+                                <span id="cal-gcal-btn-text">GCal Hub</span>
                             </button>
                             <span class="card-tag">Monthly</span>
                         </div>

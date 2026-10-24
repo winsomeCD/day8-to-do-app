@@ -398,6 +398,7 @@ html.light .ambient-orb {
     gap: 6px;
     font-family: var(--font-mono);
     font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
     color: var(--text-secondary);
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
@@ -430,6 +431,22 @@ html.light .ambient-orb {
 
 .header-btn:active {
     transform: translateY(0);
+}
+
+.header-icon-svg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    color: currentColor;
+    flex-shrink: 0;
+}
+
+.header-icon-svg svg {
+    display: block;
+    width: 14px;
+    height: 14px;
 }
 
 /* --------------------------------------------------------------------------
@@ -688,36 +705,55 @@ html.light .ambient-orb {
 .btn-gcal-badge {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    padding: 3px 9px;
+    padding: 5px 12px;
     border-radius: var(--radius-pill);
     background: rgba(66, 133, 244, 0.12);
-    border: 1px solid rgba(66, 133, 244, 0.35);
+    border: 1px solid rgba(66, 133, 244, 0.4);
     color: #8ab4f8;
     cursor: pointer;
     transition: all var(--transition-fast);
 }
 
+.btn-gcal-badge .gcal-hub-icon {
+    flex-shrink: 0;
+    transition: transform var(--transition-fast);
+}
+
 .btn-gcal-badge:hover {
-    background: rgba(66, 133, 244, 0.24);
-    border-color: rgba(66, 133, 244, 0.65);
+    background: rgba(66, 133, 244, 0.22);
+    border-color: rgba(66, 133, 244, 0.7);
     color: #ffffff;
-    box-shadow: 0 0 12px rgba(66, 133, 244, 0.35);
+    box-shadow: 0 0 14px rgba(66, 133, 244, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-gcal-badge:hover .gcal-hub-icon {
+    transform: rotate(6deg) scale(1.08);
+}
+
+.btn-gcal-badge.syncing {
+    opacity: 0.8;
+}
+
+.btn-gcal-badge.syncing .gcal-hub-icon {
+    animation: spin 1s linear infinite;
 }
 
 html.light .btn-gcal-badge {
     background: rgba(26, 115, 232, 0.08);
-    border: 1px solid rgba(26, 115, 232, 0.28);
+    border: 1px solid rgba(26, 115, 232, 0.3);
     color: #1a73e8;
 }
 
 html.light .btn-gcal-badge:hover {
-    background: rgba(26, 115, 232, 0.16);
-    border-color: rgba(26, 115, 232, 0.55);
+    background: rgba(26, 115, 232, 0.15);
+    border-color: rgba(26, 115, 232, 0.6);
     color: #1557b0;
+    box-shadow: 0 2px 10px rgba(26, 115, 232, 0.2);
 }
 
 .card-body {

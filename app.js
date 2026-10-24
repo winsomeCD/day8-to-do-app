@@ -294,11 +294,15 @@ function applyTheme() {
     const htmlEl = document.documentElement;
     if (isDarkMode) {
         htmlEl.classList.remove('light');
-        if (themeBtnIcon) themeBtnIcon.textContent = '🌙';
+        if (themeBtnIcon) {
+            themeBtnIcon.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+        }
         if (themeBtnText) themeBtnText.textContent = 'Dark';
     } else {
         htmlEl.classList.add('light');
-        if (themeBtnIcon) themeBtnIcon.textContent = '☀️';
+        if (themeBtnIcon) {
+            themeBtnIcon.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+        }
         if (themeBtnText) themeBtnText.textContent = 'Light';
     }
 }
@@ -773,11 +777,11 @@ function renderTasks() {
                     ${statusBadgeHTML}
                 </div>
                 <div class="task-meta-row">
-                    <span class="meta-chip person-chip" data-person="${personName}">${personName}</span>
-                    <span class="meta-chip">${formattedDate}</span>
-                    ${task.startTime ? `<span class="meta-chip">${task.startTime}</span>` : ''}
-                    <span class="meta-chip">${task.duration}</span>
-                    ${task.reminder ? `<span class="meta-chip reminder-chip">🔔 ${task.reminder}</span>` : ''}
+                    <span class="meta-chip person-chip" data-person="${escapeHTML(personName)}">${escapeHTML(personName)}</span>
+                    <span class="meta-chip">${escapeHTML(formattedDate)}</span>
+                    ${task.startTime ? `<span class="meta-chip">${escapeHTML(task.startTime)}</span>` : ''}
+                    <span class="meta-chip">${escapeHTML(task.duration)}</span>
+                    ${task.reminder ? `<span class="meta-chip reminder-chip">🔔 ${escapeHTML(task.reminder)}</span>` : ''}
                     ${task.gcalEventId ? `<span class="meta-chip gcal-synced-chip" title="Synced directly to Google Calendar">✓ GCal</span>` : ''}
                 </div>
             </div>
@@ -1222,11 +1226,15 @@ function updateNotificationButtonUI() {
     if (!enableNotifBtn) return;
     if (notificationsEnabled) {
         enableNotifBtn.style.opacity = '1';
-        if (notifBtnIcon) notifBtnIcon.textContent = '🔔';
+        if (notifBtnIcon) {
+            notifBtnIcon.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>`;
+        }
         if (notifBtnText) notifBtnText.textContent = 'Alerts On';
     } else {
-        enableNotifBtn.style.opacity = '0.6';
-        if (notifBtnIcon) notifBtnIcon.textContent = '🔕';
+        enableNotifBtn.style.opacity = '0.65';
+        if (notifBtnIcon) {
+            notifBtnIcon.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><path d="M18.63 13A17.88 17.88 0 0 1 18 8"></path><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"></path><path d="M18 8a6 6 0 0 0-9.33-5"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+        }
         if (notifBtnText) notifBtnText.textContent = 'Alerts Off';
     }
 }
@@ -1247,11 +1255,11 @@ function requestNotificationPermission() {
 }
 
 /**
- * Escape HTML Helper
+ * Escape HTML Helper: Hardened against XSS attacks
  */
 function escapeHTML(str) {
-    if (!str) return '';
-    return str
+    if (str === null || str === undefined) return '';
+    return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -1599,17 +1607,26 @@ function updateGCalAuthBadge() {
         gcalClientIdInput.value = savedClientId;
     }
 
-    if (!gcalAuthStatusBadge) return;
+    const calGcalBtnText = document.getElementById('cal-gcal-btn-text');
 
     if (!savedClientId) {
-        gcalAuthStatusBadge.className = 'auth-status-badge not-configured';
-        gcalAuthStatusBadge.textContent = 'Not Configured';
+        if (gcalAuthStatusBadge) {
+            gcalAuthStatusBadge.className = 'auth-status-badge not-configured';
+            gcalAuthStatusBadge.textContent = 'Not Configured';
+        }
+        if (calGcalBtnText) calGcalBtnText.textContent = 'GCal Hub';
     } else if (gcalAccessToken) {
-        gcalAuthStatusBadge.className = 'auth-status-badge connected';
-        gcalAuthStatusBadge.textContent = '🟢 Connected & Ready';
+        if (gcalAuthStatusBadge) {
+            gcalAuthStatusBadge.className = 'auth-status-badge connected';
+            gcalAuthStatusBadge.textContent = '🟢 Connected & Ready';
+        }
+        if (calGcalBtnText) calGcalBtnText.textContent = 'GCal Synced';
     } else {
-        gcalAuthStatusBadge.className = 'auth-status-badge ready';
-        gcalAuthStatusBadge.textContent = 'Client ID Saved';
+        if (gcalAuthStatusBadge) {
+            gcalAuthStatusBadge.className = 'auth-status-badge ready';
+            gcalAuthStatusBadge.textContent = 'Client ID Saved';
+        }
+        if (calGcalBtnText) calGcalBtnText.textContent = 'GCal Ready';
     }
 
     if (gcalFileProtocolWarning) {
@@ -1840,16 +1857,27 @@ async function pushSingleTaskToGoogleCalendarAPI(task, token) {
 }
 
 function setLiveSyncButtonState(isSyncing, customText) {
-    const btns = [headerGcalSyncBtn, footerDirectSyncBtn, btnModalDirectPush].filter(Boolean);
+    const btns = [headerGcalSyncBtn, footerDirectSyncBtn, btnModalDirectPush, openGcalModalBtn].filter(Boolean);
     btns.forEach(btn => {
         if (isSyncing) {
             btn.classList.add('syncing');
-            btn.disabled = true;
         } else {
             btn.classList.remove('syncing');
-            btn.disabled = false;
         }
     });
+
+    if (btnModalDirectPush) {
+        btnModalDirectPush.disabled = isSyncing;
+    }
+
+    const calGcalBtnText = document.getElementById('cal-gcal-btn-text');
+    if (calGcalBtnText) {
+        if (isSyncing) {
+            calGcalBtnText.textContent = customText || 'Syncing...';
+        } else {
+            updateGCalAuthBadge();
+        }
+    }
 
     if (headerGcalSyncText) {
         headerGcalSyncText.textContent = isSyncing ? (customText || 'Syncing...') : 'Sync GCal';
